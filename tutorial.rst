@@ -1,5 +1,12 @@
+================================
 Writing an Interpreter with PyPy
 ================================
+Written by Andrew Brown <brownan@gmail.com>, with help from the PyPy developers
+on the pypy-dev mailing list.
+
+This tutorial's master copy and supporting files live at
+https://bitbucket.org/brownan/pypy-tutorial/
+
 When I first learned about the PyPy project, it took me a while to figure out
 exactly what it was about. For those that don't already know, it's two things:
 
@@ -7,13 +14,12 @@ exactly what it was about. For those that don't already know, it's two things:
   
 * An implementation of Python using this toolchain
   
-The second part is probably of interest to most people, but this post is about
-the first: How to write an interpreter using PyPy. This is the project I
-undertook to help myself better understand how PyPy works and what it's all
-about.
-XXX would it be ok to add a sentence like the following? We tend to have
-misunderstandings around that point: "Just to be very clear: This post is *not*
-talking about PyPy's Python interpreter at all."
+The second part is probably what most people think PyPy is, but this tutorial
+is *not* about their Python interpreter.  It is about writing your own
+interpreter for your own language.
+
+This is the project I undertook to help myself better understand how PyPy works
+and what it's all about.
 
 This tutorial assumes you know very little about PyPy, how it works, and even
 what it's all about. I'm starting from the very beginning here.
@@ -35,19 +41,17 @@ precision integers, nice general hash tables, and such. It's enough to put
 someone off from implementing their idea for a language.
 
 Wouldn't it be nice if you could write your language in an existing high level
-language like Python? That sure would be ideal, you'd get all the advantages of
-a high level language like automatic memory management and rich data types at
-your disposal.  Oh, but an interpreted language interpreting another language
-would be slow, right? That's twice as much interpreting going on.
-
-XXX I think you should define the term "RPython" here, because now it sounds
-like PyPy translates normal Python.
+language like, for example, Python? That sure would be ideal, you'd get all the
+advantages of a high level language like automatic memory management and rich
+data types at your disposal.  Oh, but an interpreted language interpreting
+another language would be slow, right? That's twice as much interpreting going
+on.
 
 As you may have guessed, PyPy solves this problem. PyPy is a sophisticated
-toochain for analyzing Python code and translating it to C code (or JVM or
-CLI). This process is called "translation", and it knows how to translate quite
-a lot of Python's syntax and standard libraries, but not everything. All you
-have to do is write your interpreter in Python using only a subset of the
+toochain for analyzing and translating your interpreter code to C code (or JVM
+or CLI). This process is called "translation", and it knows how to translate
+quite a lot of Python's syntax and standard libraries, but not everything. All
+you have to do is write your interpreter in **RPython**, a subset of the Python
 language carefully defined to allow this kind of analysis and translation, and
 PyPy will produce for you a very efficient interpreter.
 
@@ -127,7 +131,7 @@ As you can see, a program counter (pc) holds the current instruction index. The
 first statement in the loop gets the instruction to execute, and then a
 compound if statement decides how to execute that instruction.
 
-The implementation of [ and ] is left out here, but they should change the
+The implementation of [ and ] are left out here, but they should change the
 program counter to the value of the matching bracket. (The pc then gets
 incremented, so the condition is evaluated once when entering a loop, and once
 at the end of each iteration)
@@ -205,9 +209,10 @@ mainloop() and implement the bracket branches of the if statement. Here's the
 complete example: `<example1.py>`_
 
 At this point you can try it out to see that it works by running the
-interpreter un-translated under python, but be warned, it will be *very* slow::
+interpreter under python, but be warned, it will be *very* slow on the more
+complex examples::
 
-    $ python example1.py mandel.b
+    $ python example1.py 99bottles.b
     
 You can find mandel.b and several other example programs (not written by me) in
 my repository.
@@ -218,7 +223,7 @@ But this is not about writing a BF interpreter, this is about PyPy. So what
 does it take to get PyPy to translate this into a super-fast executable?
 
 As a side note, there are some simple examples in the pypy/translator/goal
-directory of the source tree that are helpful here. My starting point for
+directory of the PyPy source tree that are helpful here. My starting point for
 learning this was the example "targetnopstandalone.py", a simple hello world
 for PyPy.
 
@@ -276,7 +281,9 @@ Those are the only changes to make to this code, the rest is simple enough for
 PyPy to digest.
 
 That wasn't so hard, was it? I still get to use dictionaries, expandable lists,
-and even classes and objects!
+and even classes and objects! And if low level file descriptors are too low for
+you, there are some helpful abstractions in the rlib.streamio module included
+with PyPy's "RPython standard library."
 
 For the example thus far, see `<example2.py>`_
 
@@ -297,7 +304,7 @@ passing in our example module as an argument.
 
     $ python ./pypy/pypy/translator/goal/translate.py example2.py
     
-(if you have PyPy's python interpreter available, use that, it's faster)
+(You can use PyPy's python interpreter for extra speed, but it's not necessary)
 
 PyPy will churn for a bit, drawing some nice looking fractals to your console
 while it works. It takes around 20 seconds on my machine.
@@ -314,13 +321,16 @@ Compare this to running the interpreter un-translated on top of python::
     
 Takes forever, doesn't it?
 
+So there you have it. We've successfully written our own interpreter in RPython
+and translated it with the PyPy toolchain.
+
 Adding JIT
 ==========
-That's pretty cool, but one of the best features of PyPy is its ability to
-*generate just-in-time compilers for your interpreter*. That's right, from just
-a couple hints on how your interpreter is structured, PyPy will generate and
-include a JIT compiler that will, at runtime, translate the interpreted BF code
-to machine code!
+Translating RPython to C is pretty cool, but one of the best features of PyPy
+is its ability to *generate just-in-time compilers for your interpreter*.
+That's right, from just a couple hints on how your interpreter is structured,
+PyPy will generate and include a JIT compiler that will, at runtime, translate
+the interpreted code of our BF language to machine code!
 
 So what do we need to tell PyPy to make this happen? First it needs to know
 where the start of your bytecode evaluation loop is. This lets it keep track of
@@ -331,9 +341,11 @@ our language doesn't really have stack frames, this boils down to what's
 constant for the execution of a particular instruction, and what's not. These
 are called "green" and "red" variables, respectively.
 
+Refer back to `<example2.py>`_ for the following.
+
 In our main loop, there are four variables used: pc, program, bracket_map, and
 tape. Of those, pc, program, and bracket_map are all green variables. They
-*define* the execution of a particular instruction: if the JIT routines see the
+*define* the execution of a particular instruction. If the JIT routines see the
 same combination of green variables as before, it knows it's skipped back and
 must be executing a loop.  The variable "tape" is our red variable, it's what's
 being manipulated by the execution.
@@ -364,10 +376,10 @@ Now try translating again, but with the flag ``--opt=jit``::
 
     $ python ./pypy/pypy/translator/goal/translate.py --opt=jit example3.py
 
-It will take significantly longer to translate, almost 8 minutes on my machine,
-and the resulting binary will be much larger. When it's done, try having it run
-the mandelbrot program again. A world of difference, 45 seconds down to 12
-seconds on my machine!
+It will take significantly longer to translate with JIT enabled, almost 8
+minutes on my machine, and the resulting binary will be much larger. When it's
+done, try having it run the mandelbrot program again. A world of difference,
+from 12 seconds compared to 45 seconds before!
 
 Interestingly enough, you can see when the JIT compiler switches from
 interpreted to machine code with the mandelbrot example. The first few lines of
@@ -392,7 +404,8 @@ several assumptions about the code. Therefore, the machine code will contain
 guards, to validate those assumptions. If a guard check fails, the runtime
 falls back to regular interpreted mode.
 
-(Note to myself, find some links about JIT compilers and put them here)
+A good place to start for more information is
+http://en.wikipedia.org/wiki/Just-in-time_compilation
 
 Debugging and Trace Logs
 ========================
@@ -574,11 +587,15 @@ require *any* program counter manipulation.
 
 I'm no expert on optimizations, this tip was suggested by Armin Rigo on the
 pypy-dev list. Carl Friedrich has a series of posts on how to optimize your
-interpreter that is also very useful: http://bit.ly/bundles/cfbolz/1
+interpreter that are also very useful: http://bit.ly/bundles/cfbolz/1
 
 Final Words
 ===========
-There are several academic papers explaining the process in detail that I
-recommend. In particular: Tracing the Meta-Level: PyPy's Tracing JIT Compiler.
+I hope this has shown some of you what PyPy is all about other than a faster
+implementation of Python.
+
+For those that would like to know more about how the process works, there are
+several academic papers explaining the process in detail that I recommend. In
+particular: Tracing the Meta-Level: PyPy's Tracing JIT Compiler.
 
 See http://readthedocs.org/docs/pypy/en/latest/extradoc.html
