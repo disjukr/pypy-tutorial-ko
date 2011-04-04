@@ -11,6 +11,9 @@ The second part is probably of interest to most people, but this post is about
 the first: How to write an interpreter using PyPy. This is the project I
 undertook to help myself better understand how PyPy works and what it's all
 about.
+XXX would it be ok to add a sentence like the following? We tend to have
+misunderstandings around that point: "Just to be very clear: This post is *not*
+talking about PyPy's Python interpreter at all."
 
 This tutorial assumes you know very little about PyPy, how it works, and even
 what it's all about. I'm starting from the very beginning here.
@@ -36,6 +39,9 @@ language like Python? That sure would be ideal, you'd get all the advantages of
 a high level language like automatic memory management and rich data types at
 your disposal.  Oh, but an interpreted language interpreting another language
 would be slow, right? That's twice as much interpreting going on.
+
+XXX I think you should define the term "RPython" here, because now it sounds
+like PyPy translates normal Python.
 
 As you may have guessed, PyPy solves this problem. PyPy is a sophisticated
 toochain for analyzing Python code and translating it to C code (or JVM or
@@ -261,7 +267,7 @@ Let's talk a bit about RPython at this point. PyPy can't translate arbitrary
 Python code because Python is a bit too dynamic. There are restrictions on what
 standard library functions and what syntax constructs one can use. I won't be
 going over all the restrictions, but for more information see
-http://codespeak.net/pypy/dist/pypy/doc/coding-guide.html#restricted-python
+http://readthedocs.org/docs/pypy/en/latest/coding-guide.html#restricted-python
 
 In the example above, you'll see a few things have changed.  I'm now using low
 level file descriptors with os.open and os.read instead of file objects.
@@ -575,4 +581,4 @@ Final Words
 There are several academic papers explaining the process in detail that I
 recommend. In particular: Tracing the Meta-Level: PyPy's Tracing JIT Compiler.
 
-See http://codespeak.net/pypy/dist/pypy/doc/extradoc.html.
+See http://readthedocs.org/docs/pypy/en/latest/extradoc.html
