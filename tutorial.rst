@@ -36,9 +36,9 @@ isn't fun, that's why there are tools out there to generate parsers and
 compilers for you.
 
 Even then, you still must worry about memory management in your interpreter,
-and you're going to be re-inventing a lot if you want data types like arbitrary
-precision integers, nice general hash tables, and such. It's enough to put
-someone off from implementing their idea for a language.
+and you're going to be re-implementing a lot if you want data types like
+arbitrary precision integers, nice general hash tables, and such. It's enough
+to put someone off from implementing their idea for a language.
 
 Wouldn't it be nice if you could write your language in an existing high level
 language like, for example, Python? That sure would be ideal, you'd get all the
@@ -48,7 +48,7 @@ another language would be slow, right? That's twice as much interpreting going
 on.
 
 As you may have guessed, PyPy solves this problem. PyPy is a sophisticated
-toochain for analyzing and translating your interpreter code to C code (or JVM
+toolchain for analyzing and translating your interpreter code to C code (or JVM
 or CLI). This process is called "translation", and it knows how to translate
 quite a lot of Python's syntax and standard libraries, but not everything. All
 you have to do is write your interpreter in **RPython**, a subset of the Python
@@ -310,8 +310,9 @@ PyPy will churn for a bit, drawing some nice looking fractals to your console
 while it works. It takes around 20 seconds on my machine.
 
 The result from this is an executable binary that interprets BF programs.
-Included in my repository are some examples, including a mandelbrot fractal
-generator, which takes about 45 seconds to run on my computer. Try it out::
+Included in my repository are some example BF programs, including a mandelbrot
+fractal generator, which takes about 45 seconds to run on my computer. Try it
+out::
 
     $ ./example2-c mandel.b
 
