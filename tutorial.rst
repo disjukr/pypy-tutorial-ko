@@ -368,7 +368,7 @@ We also need to define a JitPolicy. We're not doing anything fancy, so this is
 all we need somewhere in the file::
 
     def jitpolicy(driver):
-        from pypy.jit.codewriter.policy import JitPolicy
+        from rpython.jit.codewriter.policy import JitPolicy
         return JitPolicy()
         
 See this example at `<example3.py>`_
