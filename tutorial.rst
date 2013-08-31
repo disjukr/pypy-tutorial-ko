@@ -302,7 +302,7 @@ passing in our example module as an argument.
 
 ::
 
-    $ python ./pypy/pypy/translator/goal/translate.py example2.py
+    $ python ./pypy/rpython/bin/rpython example2.py
     
 (You can use PyPy's python interpreter for extra speed, but it's not necessary)
 
@@ -375,7 +375,7 @@ See this example at `<example3.py>`_
         
 Now try translating again, but with the flag ``--opt=jit``::
 
-    $ python ./pypy/pypy/translator/goal/translate.py --opt=jit example3.py
+    $ python ./pypy/rpython/bin/rpython --opt=jit example3.py
 
 It will take significantly longer to translate with JIT enabled, almost 8
 minutes on my machine, and the resulting binary will be much larger. When it's
