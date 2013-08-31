@@ -354,7 +354,7 @@ being manipulated by the execution.
 So let's tell PyPy this info. Start by importing the JitDriver class and making
 an instance::
 
-    from pypy.rlib.jit import JitDriver
+    from rpython.rlib.jit import JitDriver
     jitdriver = JitDriver(greens=['pc', 'program', 'bracket_map'],
             reds=['tape'])
     
@@ -548,7 +548,7 @@ What we need to do is provide another hint to the translation to say that the
 dictionary query is a pure function, that is, its output depends *only* on its
 inputs and the same inputs should always return the same output.
 
-To do this, we use a provided function decorator pypy.rlib.jit.purefunction,
+To do this, we use a provided function decorator rpython.rlib.jit.purefunction,
 and wrap the dictionary call in a decorated function::
 
     @purefunction

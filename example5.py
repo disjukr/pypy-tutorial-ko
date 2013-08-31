@@ -12,7 +12,7 @@ import sys
 # So that you can still run this module under standard CPython, I add this
 # import guard that creates a dummy class instead.
 try:
-    from pypy.rlib.jit import JitDriver, purefunction
+    from rpython.rlib.jit import JitDriver, purefunction
 except ImportError:
     class JitDriver(object):
         def __init__(self,**kw): pass
