@@ -18,44 +18,43 @@ https://bitbucket.org/brownan/pypy-tutorial/ 에서 구할 수 있습니다.
 이 튜토리얼은 자신의 언어를 위한 인터프리터를 직접 구현하는 법에 대한
 내용입니다.
 
-This is the project I undertook to help myself better understand how PyPy works
-and what it's all about.
+이는 저 스스로 PyPy가 정확히 무엇인지, 어떻게 동작하는지를 이해하기 위해 진행한
+프로젝트이기도 합니다.
 
-This tutorial assumes you know very little about PyPy, how it works, and even
-what it's all about. I'm starting from the very beginning here.
+이 튜토리얼은 독자가 PyPy를, 그것이 어떻게 돌아가는지를, 심지어 그게 무엇인지를
+잘 모를 수 있을 것이라 가정합니다. 저는 처음부터 차근차근 설명할 요량입니다.
 
-What PyPy Does
-==============
-Here's a brief overview of what PyPy can do. Let's say you want to write an
-interpreted language. This involves writing some kind of source code parser, a
-bytecode interpretation loop, and lots of standard library code.
+PyPy는 무엇을 하는가
+--------------------
+PyPy가 무엇을 할 수 있는지 대략적인 개요를 설명하겠습니다. 일단 여러분이
+인터프리터를 하나 만들고 싶다고 칩시다.
+이는 소스코드 파서와, 바이트코드 해석 루프, 그 외에 잡다한 표준 라이브러리
+코드를 포함합니다.
 
-That's quite a bit of work for moderately complicated languages, and there's a
-lot of low level work involved. Writing the parser and compiler code usually
-isn't fun, that's why there are tools out there to generate parsers and
-compilers for you.
+적당히 복잡한 언어라면 작업량이 꽤나 되겠죠. 그리고 상당한 로우레벨 작업이
+수반됩니다. 파서와 컴파일러 코드를 작업하는건 대체로 재미가 없습니다. 그리고
+그 것이 바로 파서와 컴파일러를 생성하는 도구의 존재이유입니다.
 
-Even then, you still must worry about memory management in your interpreter,
-and you're going to be re-implementing a lot if you want data types like
-arbitrary precision integers, nice general hash tables, and such. It's enough
-to put someone off from implementing their idea for a language.
+그럼에도 인터프리터를 구현하려면 메모리 관리를 고려해야 하고, 임의의 정밀도를
+가진 정수나 멋지게 일반화된 해시테이블 등등을 원한다면 바퀴를 다시 만드는 노력이
+필요합니다.
+이는 누군가 언어를 하나 만들고 싶다는 생각을 무르게 만드는데 충분한 요소입니다.
 
-Wouldn't it be nice if you could write your language in an existing high level
-language like, for example, Python? That sure would be ideal, you'd get all the
-advantages of a high level language like automatic memory management and rich
-data types at your disposal.  Oh, but an interpreted language interpreting
-another language would be slow, right? That's twice as much interpreting going
-on.
+파이썬같이, 이미 존재하는 고수준 언어를 사용해서 자신의 언어를 작성할 수 있다면
+멋지겠죠? 자동화된 메모리 관리나 풍부한 자료구조들을 그대로 가져다 사용할 수
+있는 이상적인 환경일 것입니다.
+어, 근데 인터프리터 위에서 돌아가는 인터프리터라면 느리지 않을까요?
+그렇게 만들어버린다면 인터프리팅이 두 번에 걸쳐서 처리될 것입니다.
 
-As you may have guessed, PyPy solves this problem. PyPy is a sophisticated
-toolchain for analyzing and translating your interpreter code to C code (or JVM
-or CLI). This process is called "translation", and it knows how to translate
-quite a lot of Python's syntax and standard libraries, but not everything. All
-you have to do is write your interpreter in **RPython**, a subset of the Python
-language carefully defined to allow this kind of analysis and translation, and
-PyPy will produce for you a very efficient interpreter.
+눈치 채셨겠지만 PyPy는 이 문제를 해결합니다. PyPy는 여러분의 인터프리터 코드를
+분석 및 C 코드(또는 JVM이나 CLI)로 변환하기 위한 정교한 툴체인입니다.
+이 것은 "번역(translation)"을 수행하기 위해, 어떻게 많은 파이썬 문법과
+표준 라이브러리들을 옮겨낼지를 알고 있습니다. 여러분이 작업해야할 것은 여러분의
+인터프리터를 파이썬의 서브셋인 **RPython**으로 작성하는 것 뿐입니다.
+RPython은 분석과 번역 작업 및 매우 효율적인 인터프리터를 생성할 수 있도록
+매우 조심스럽게 정의된 언어입니다.
 
-Because efficient interpreters should not be hard to write.
+왜냐하면 효율적인 인터프리터는 쉽게 작성할 수 있어야 하기 때문입니다.
 
 The Language
 ============
