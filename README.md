@@ -56,45 +56,45 @@ RPython은 분석과 번역 작업 및 매우 효율적인 인터프리터를 �
 
 왜냐하면 효율적인 인터프리터는 쉽게 작성할 수 있어야 하기 때문입니다.
 
-The Language
-============
-The language I've chosen to implement is dead simple. The language runtime
-consists of a tape of integers, all initialized to zero, and a single pointer
-to one of the tape's cells. The language has 8 commands, described here:
+언어
+----
+구현하기에 굉장히 쉬운 언어를 하나 골랐습니다. 런타임은 모두 `0`으로 초기화된
+정수 테이프와, 테이프 중 한 칸을 가르키는 포인터 하나로 구성되어있는 언어입니다.
+이 언어는 8가지 명령어로 구성되어있습니다:
 
->
-    Moves the tape pointer one cell to the right
-    
-<
-    Moves the tape pointer one cell to the left
-    
-+
-    Increments the value of the cell underneath the pointer
-    
--
-    Decrements the value of the cell underneath the pointer
+### >
+테이프 포인터를 오른쪽으로 한 칸 이동시킵니다.
 
-[
-    If the cell under the current pointer is 0, skip to the instruction after
-    the matching ]
-    
-]
-    Skip back to the matching [ (evaluating its condition)
-    
-.
-    Print out a single byte to stdout from the cell under the pointer
-    
-,
-    Read in a single byte from stdin to the cell under the pointer
-    
-Any unrecognized bytes are ignored.
+### <
+테이프 포인터를 왼쪽으로 한 칸 이동시킵니다.
 
-Some of you may recognize this language. I will be referring to it as BF.
+### +
+포인터가 가르키는 칸의 값을 증가시킵니다.
 
-One thing to notice is that the language is its own bytecode; there is no
-translation from source code to bytecode. This means that the language can be
-interpreted directly: the main eval loop of our interpreter will operate right
-on the source code. This simplifies the implementation quite a bit.
+### -
+포인터가 가르키는 칸의 값을 감소시킵니다.
+
+### [
+만약 포인터가 가르키는 칸의 값이 `0`이라면 상응하는 괄호짝 `]` 뒤로 건너뜁니다.
+
+### ]
+상응하는 괄호짝 `[`로 돌아갑니다 (반복 조건도 평가합니다).
+
+### .
+포인터가 가르키는 칸의 값을 `stdout`으로 한 바이트 출력합니다.
+
+### ,
+`stdin`에서 한 바이트 읽어와 포인터가 가르키는 칸에 대입합니다.
+
+인식되지 않는 바이트들은 무시합니다.
+
+이게 무엇인지 아는 분들이 있으시겠죠. 전 앞으로 이 것을 BF라고 부르겠습니다.
+
+한가지 주목할 점은 이 언어는 바이트코드가 바로 언어 자신이라는 점입니다;
+달리 소스코드를 바이트코드로 변환할 필요가 없습니다.
+따라서 이 언어는 읽는 즉시 해석할 수 있습니다:
+우리 인터프리터의 메인 평가 루프는 소스코드에 작성된 그대로 돌아갈 겁니다.
+이는 구현을 굉장히 단순하게 만들어줍니다.
 
 First Steps
 ===========
