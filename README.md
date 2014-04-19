@@ -96,75 +96,79 @@ RPython은 분석과 번역 작업 및 매우 효율적인 인터프리터를 �
 우리 인터프리터의 메인 평가 루프는 소스코드에 작성된 그대로 돌아갈 겁니다.
 이는 구현을 굉장히 단순하게 만들어줍니다.
 
-First Steps
-===========
-Let's start out by writing a BF interpreter in plain old Python. The first step
-is sketching out an eval loop::
+첫 걸음
+-------
+일반적인 파이썬 문법으로 BF 인터프리터를 작성하는 것부터 시작해봅시다.
+가장 먼저 할 것은 평가 루프를 작성하는 것입니다::
 
-    def mainloop(program):
-        tape = Tape()
-        pc = 0
-        while pc < len(program):
-            code = program[pc]
+```python
+def mainloop(program):
+    tape = Tape()
+    pc = 0
+    while pc < len(program):
+        code = program[pc]
 
-            if code == ">":
-                tape.advance()
-            elif code == "<":
-                tape.devance()
-            elif code == "+":
-                tape.inc()
-            elif code == "-":
-                tape.dec()
-            elif code == ".":
-                sys.stdout.write(chr(tape.get()))
-            elif code == ",":
-                tape.set(ord(sys.stdin.read(1)))
-            elif code == "[" and value() == 0:
-                # Skip forward to the matching ]
-            elif code == "]" and value() != 0:
-                # Skip back to the matching [
+        if code == ">":
+            tape.advance()
+        elif code == "<":
+            tape.devance()
+        elif code == "+":
+            tape.inc()
+        elif code == "-":
+            tape.dec()
+        elif code == ".":
+            sys.stdout.write(chr(tape.get()))
+        elif code == ",":
+            tape.set(ord(sys.stdin.read(1)))
+        elif code == "[" and value() == 0:
+            # Skip forward to the matching ]
+        elif code == "]" and value() != 0:
+            # Skip back to the matching [
 
-            pc += 1
-        
-As you can see, a program counter (pc) holds the current instruction index. The
-first statement in the loop gets the instruction to execute, and then a
-compound if statement decides how to execute that instruction.
+        pc += 1
+```
 
-The implementation of [ and ] are left out here, but they should change the
-program counter to the value of the matching bracket. (The pc then gets
-incremented, so the condition is evaluated once when entering a loop, and once
-at the end of each iteration)
-        
-Here's the implementation of the Tape class, which holds the tape's values as
-well as the tape pointer::
+보시듯이 프로그램 카운터(pc)는 현재 명령어의 인덱스를 잡고 있습니다.
+반복문 안쪽의 첫번째 문장에서는 그 위치에서 하나 읽어오고,
+그 다음 복합 if 문에선 읽어온 명령을 어떻게 처리할지를 결정합니다.
 
-    class Tape(object):
-        def __init__(self):
-            self.thetape = [0]
-            self.position = 0
+여기에서는 `[`와 `]`의 구현이 빠져있는데, 그 두 개의 명령어는 프로그램 카운터의
+값을 일치하는 짝의 위치로 변경시킬 수 있습니다. (그 후에 `pc`값은 증가하게 되며,
+따라서 반복 조건은 루프의 진입시에 한 번 평가되고, 그 뒤로는 매 주기의 끝마다
+평가됩니다)
 
-        def get(self):
-            return self.thetape[self.position]
-        def set(self, val):
-            self.thetape[self.position] = val
-        def inc(self):
-            self.thetape[self.position] += 1
-        def dec(self):
-            self.thetape[self.position] -= 1
-        def advance(self):
-            self.position += 1
-            if len(self.thetape) <= self.position:
-                self.thetape.append(0)
-        def devance(self):
-            self.position -= 1
-            
-As you can see, the tape expands as needed to the right, indefinitely. We
-should really add some error checking to make sure the pointer doesn't go
-negative, but I'm not worrying about that now.
-            
-Except for the omission of the "[" and "]" implementation, this code will work
-fine.  However, if the program has a lot of comments, it will have to skip over
-them one byte at a time at runtime. So let's parse those out once and for all.
+다음은 테이프 자신의 내용과 그 것을 가르키는 포인터를 들고있는
+`Tape` 클래스의 구현입니다::
+
+```python
+class Tape(object):
+    def __init__(self):
+        self.thetape = [0]
+        self.position = 0
+
+    def get(self):
+        return self.thetape[self.position]
+    def set(self, val):
+        self.thetape[self.position] = val
+    def inc(self):
+        self.thetape[self.position] += 1
+    def dec(self):
+        self.thetape[self.position] -= 1
+    def advance(self):
+        self.position += 1
+        if len(self.thetape) <= self.position:
+            self.thetape.append(0)
+    def devance(self):
+        self.position -= 1
+```
+
+보시듯이 테이프는 오른쪽으로 필요한 만큼 무한정 확장됩니다.
+포인터가 음수가 되지 않도록 에러 체크를 해줘야 하겠지만
+저는 일단 그 부분은 걱정하지 않도록 하겠습니다.
+
+생략한 `[`와 `]` 구현을 제외하면 이 코드는 제대로 돌아갈 것입니다.
+하지만, 프로그램이 주석을 많이 갖고있다면 런타임에 그 것들을 넘기는 처리가
+일어날 테지요. 그러니 처음에 한 번 파싱해서 없애버리도록 합시다.
 
 At the same time, we'll build a dictionary mapping between brackets, so that
 finding a matching bracket is just a single dictionary lookup. Here's how::
