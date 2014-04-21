@@ -100,7 +100,7 @@ RPython은 분석과 번역 작업 및 매우 효율적인 인터프리터를 �
 첫 걸음
 -------
 일반적인 파이썬 문법으로 BF 인터프리터를 작성하는 것부터 시작해봅시다.
-가장 먼저, 평가 루프를 작성합니다::
+가장 먼저, 평가 루프를 작성합니다:
 
 ```python
 def mainloop(program):
@@ -139,7 +139,7 @@ def mainloop(program):
 평가됩니다)
 
 다음은 테이프 자신의 내용과 그 것을 가르키는 포인터를 들고있는
-`Tape` 클래스의 구현입니다::
+`Tape` 클래스의 구현입니다:
 
 ```python
 class Tape(object):
@@ -172,56 +172,61 @@ class Tape(object):
 쓸데없이 런타임에 그 것들을 넘어가는 처리가 일어날 테지요.
 그러니 처음에 한 번 파싱해서 걸러내어 버리도록 합시다.
 
-At the same time, we'll build a dictionary mapping between brackets, so that
-finding a matching bracket is just a single dictionary lookup. Here's how::
+하는 김에 괄호간에 딕셔너리 매핑을 만들어서, 다음과 같이 짝이 맞는 괄호를
+한 번의 딕셔너리 룩업으로 찾을 수 있게 합시다:
 
-    def parse(program):
-        parsed = []
-        bracket_map = {}
-        leftstack = []
+```python
+def parse(program):
+    parsed = []
+    bracket_map = {}
+    leftstack = []
 
-        pc = 0
-        for char in program:
-            if char in ('[', ']', '<', '>', '+', '-', ',', '.'):
-                parsed.append(char)
+    pc = 0
+    for char in program:
+        if char in ('[', ']', '<', '>', '+', '-', ',', '.'):
+            parsed.append(char)
 
-                if char == '[':
-                    leftstack.append(pc)
-                elif char == ']':
-                    left = leftstack.pop()
-                    right = pc
-                    bracket_map[left] = right
-                    bracket_map[right] = left
-                pc += 1
-        
-        return "".join(parsed), bracket_map
+            if char == '[':
+                leftstack.append(pc)
+            elif char == ']':
+                left = leftstack.pop()
+                right = pc
+                bracket_map[left] = right
+                bracket_map[right] = left
+            pc += 1
 
-This returns a string with all invalid instructions removed, and a dictionary
-mapping bracket indexes to their matching bracket index.
+    return "".join(parsed), bracket_map
+```
 
-All we need is some glue code and we have a working BF interpreter::
+이 함수는 모든 불필요한 명령어를 제거한 문자열과, 괄호 인덱스가 짝이 맞는 괄호의
+인덱스로 매핑되는 딕셔너리를 반환합니다.
 
-    def run(input):
-        program, map = parse(input.read())
-        mainloop(program, map)
-        
-    if __name__ == "__main__":
-        import sys
-        run(open(sys.argv[1], 'r'))
-        
-If you're following along at home, you'll also need to change the signature of
-mainloop() and implement the bracket branches of the if statement. Here's the
-complete example: `<example1.py>`_
+이제 남은 코드들을 이어붙이면 제대로 작동하는 BF 인터프리터가 됩니다:
 
-At this point you can try it out to see that it works by running the
-interpreter under python, but be warned, it will be *very* slow on the more
-complex examples::
+```python
+def run(input):
+    program, map = parse(input.read())
+    mainloop(program, map)
 
-    $ python example1.py 99bottles.b
-    
-You can find mandel.b and several other example programs (not written by me) in
-my repository.
-        
+if __name__ == "__main__":
+    import sys
+    run(open(sys.argv[1], 'r'))
+```
+
+처음부터 따라오셨다면 `mainloop()`에서 인자를 하나 더 받고 if 문에서 괄호를
+처리하는 부분을 구현하시면 됩니다. 완전한 예제는 다음 파일을 참고하면 됩니다:
+[example1.py](./example1.py)
+
+지금 바로 인터프리터가 제대로 작동하는지 보기 위해 파이썬으로 돌려볼 수는
+있습니다만, 좀 더 복잡한 예제파일을 돌리기에는 *매우* 느리게 작동할 것입니다:
+
+```sh
+$ python example1.py 99bottles.b
+```
+
+이 튜토리얼의 저장소에서 `mandel.b`나 다른 예제 프로그램들(제가 작성한 것은
+아닙니다)을 찾아서 돌려보세요.
+
 PyPy Translation
 ================
 But this is not about writing a BF interpreter, this is about PyPy. So what
