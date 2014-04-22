@@ -227,54 +227,51 @@ $ python example1.py 99bottles.b
 이 튜토리얼의 저장소에서 `mandel.b`나 다른 예제 프로그램들(제가 작성한 것은
 아닙니다)을 찾아서 돌려보세요.
 
-PyPy Translation
-================
-But this is not about writing a BF interpreter, this is about PyPy. So what
-does it take to get PyPy to translate this into a super-fast executable?
+PyPy 변환
+---------
+근데 원래 목적은 PyPy를 설명하기 위함이지 BF 인터프리터 튜토리얼이 아니죠.
+여기에 PyPy를 끼얹어서 짱짱-빠른 실행파일로 만들려면 이제 뭘 해야 할까요?
 
-As a side note, there are some simple examples in the pypy/translator/goal
-directory of the PyPy source tree that are helpful here. My starting point for
-learning this was the example "targetnopstandalone.py", a simple hello world
-for PyPy.
+잠깐 다른 이야기를 하자면 PyPy 소스 트리에서 pypy/translator/goal 디렉토리에
+들어있는 예제들이 도움이 많이 됩니다. 저는 PyPy의 헬로월드 격인
+"targetnopstandalone.py" 예제를 보는 것으로 시작했답니다.
 
-For our example, the module must define a name called "target" which returns the
-entry point. The translation process imports your module and looks for that
-name, calls it, and the function object returned is where it starts the
-translation.
+다시 예제로 돌아와서, 모듈은 프로그램의 진입 지점을 반환하는 "target"을 정의해야
+합니다. 변환 프로세스는 모듈을 불러와서 "target" 함수를 실행하여 변환을 시작할
+함수 객체를 얻어냅니다:
 
-::
+```python
+def run(fp):
+    program_contents = ""
+    while True:
+        read = os.read(fp, 4096)
+        if len(read) == 0:
+            break
+        program_contents += read
+    os.close(fp)
+    program, bm = parse(program_contents)
+    mainloop(program, bm)
 
-    def run(fp):
-        program_contents = ""
-        while True:
-            read = os.read(fp, 4096)
-            if len(read) == 0:
-                break
-            program_contents += read
-        os.close(fp)
-        program, bm = parse(program_contents)
-        mainloop(program, bm)
+def entry_point(argv):
+    try:
+        filename = argv[1]
+    except IndexError:
+        print "You must supply a filename"
+        return 1
 
-    def entry_point(argv):
-        try:
-            filename = argv[1]
-        except IndexError:
-            print "You must supply a filename"
-            return 1
-        
-        run(os.open(filename, os.O_RDONLY, 0777))
-        return 0
+    run(os.open(filename, os.O_RDONLY, 0777))
+    return 0
 
-    def target(*args):
-        return entry_point, None
-        
-    if __name__ == "__main__":
-        entry_point(sys.argv)
-        
-The entry_point function is passed the command line arguments when you run the
-resulting executable.
+def target(*args):
+    return entry_point, None
 
-A few other things have changed here too. See the next section...
+if __name__ == "__main__":
+    entry_point(sys.argv)
+```
+
+변환후에 만들어진 실행파일을 돌리면 `entry_point` 함수로 명령행 인자들이
+전달됩니다.
+바뀐 사항들이 몇 가지 더 있는데요, 다음 섹션을 봅시다...
 
 About RPython
 =============
