@@ -273,26 +273,28 @@ if __name__ == "__main__":
 전달됩니다.
 바뀐 사항들이 몇 가지 더 있는데요, 다음 섹션을 봅시다...
 
-About RPython
-=============
-Let's talk a bit about RPython at this point. PyPy can't translate arbitrary
-Python code because Python is a bit too dynamic. There are restrictions on what
-standard library functions and what syntax constructs one can use. I won't be
-going over all the restrictions, but for more information see
-http://readthedocs.org/docs/pypy/en/latest/coding-guide.html#restricted-python
+RPython에 대해서
+----------------
+지금은 잠깐 RPython을 짚고 넘어가겠습니다. PyPy는 아무 파이썬 코드나 다
+번역할 수 있는 도구가 아닌데, 왜냐하면 파이썬이 너무 동적이기 때문입니다.
+그래서 사용할 수 있는 표준 라이브러리 함수나 문법 구조 등에 몇 가지 제약사항이
+있습니다. 제가 그 제약사항을 일일이 짚고 넘어가진 않을 거구요, 자세한 내용은
+[이 문서](https://pypy.readthedocs.org/en/latest/coding-guide.html#id1)를
+보시면 됩니다.
 
-In the example above, you'll see a few things have changed.  I'm now using low
-level file descriptors with os.open and os.read instead of file objects.
-The implementation of "." and "," are similarly tweaked (not shown above).
-Those are the only changes to make to this code, the rest is simple enough for
-PyPy to digest.
+위의 예제에서 아마 몇가지 바뀐 사항들을 확인할 수 있을 겁니다. 전 이제
+파일 객체를 사용하는 대신 저수준의 `os.open`과 `os.read`로 file descriptor를
+사용하고 있습니다.
+위에 써놓진 않았지만 `.`과 `,`의 구현도 비슷하게 변형되어 있습니다.
+이 정도만 맞춰두면 PyPy를 소화해내기 위한 나머지 작업은 단순한 편입니다.
 
-That wasn't so hard, was it? I still get to use dictionaries, expandable lists,
-and even classes and objects! And if low level file descriptors are too low for
-you, there are some helpful abstractions in the rlib.streamio module included
-with PyPy's "RPython standard library."
+그렇게 어렵진 않았죠? 전 아직도 딕셔너리를 사용하고 있고, 길이가 가변적인
+리스트를 사용하는 데다 클래스랑 객체도 활용하고 있답니다! 그리고 지금 사용하는
+file descriptor마저 너무 저수준이라 문제라면, PyPy의 "Rpython 표준 라이브러리"에
+포함되어있는 `rlib.streamio`라는 대안도 있습니다.
 
-For the example thus far, see `<example2.py>`_
+지금까지 다룬 내용이 적용된 예제파일은 여기 있습니다:
+[example2.py](./example2.py)
 
 Translating
 ===========
