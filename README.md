@@ -49,10 +49,10 @@ PyPy가 무엇을 할 수 있는지 대략적인 개요를 설명하겠습니다
 
 눈치 채셨겠지만 PyPy는 이 문제를 해결합니다. PyPy는 여러분의 인터프리터 코드를
 분석 및 C 코드(또는 JVM이나 CLI)로 변환하기 위한 정교한 툴체인입니다.
-이 툴체인은 "번역(translation)"을 수행하기 위해, 어떻게 많은 파이썬 문법과
+이 툴체인은 "변환(translation)"을 수행하기 위해, 어떻게 많은 파이썬 문법과
 표준 라이브러리들을 옮겨내야 하는지를 알고 있습니다. 여러분이 작업해야할 것은
 여러분의 인터프리터를 파이썬의 서브셋인 **RPython**으로 작성하는 것 뿐입니다.
-RPython은 분석과 번역 작업 및 매우 효율적인 인터프리터를 생성할 수 있도록
+RPython은 분석과 변환 작업 및 매우 효율적인 인터프리터를 생성할 수 있도록
 매우 조심스럽게 정의된 언어입니다.
 
 효율적인 인터프리터는 작성하기 쉬워야 하니까요.
@@ -296,43 +296,47 @@ file descriptor마저 너무 저수준이라 문제라면, PyPy의 "Rpython 표�
 지금까지 다룬 내용이 적용된 예제파일은 여기 있습니다:
 [example2.py](./example2.py)
 
-Translating
-===========
-If you haven't already, check yourself out the latest version of PyPy from
-their bitbucket.org repository::
+변환
+====
+bitbucket.org 저장소에 있는 PyPy 최신 버전을 준비합니다:
 
-    $ hg clone https://bitbucket.org/pypy/pypy
-    
-(A recent revision is necessary because of a bugfix that makes my example
-possible)
+```sh
+$ hg clone https://bitbucket.org/pypy/pypy
+```
 
-The script to run is in "pypy/translator/goal/translate.py". Run this script,
-passing in our example module as an argument.
+(제 예제가 돌아가려면 최신 버전에 있는 버그 수정이 반영되어야 해서 그렇습니다.)
 
-::
+우리가 돌릴 스크립트는 `pypy/translator/goal/translate.py` 경로에 있습니다.
+이 스크립트에 예제 모듈을 인자로 넣고 돌려봅시다:
 
-    $ python ./pypy/rpython/bin/rpython example2.py
-    
-(You can use PyPy's python interpreter for extra speed, but it's not necessary)
+```sh
+$ python ./pypy/rpython/bin/rpython example2.py
+```
 
-PyPy will churn for a bit, drawing some nice looking fractals to your console
-while it works. It takes around 20 seconds on my machine.
+(속도를 더 내려면 PyPy의 파이썬 인터프리터를 사용해도 되는데,
+꼭 필요한건 아닙니다.)
 
-The result from this is an executable binary that interprets BF programs.
-Included in my repository are some example BF programs, including a mandelbrot
-fractal generator, which takes about 45 seconds to run on my computer. Try it
-out::
+PyPy가 바쁘게 돌아가는 동안 심심하지 않게 콘솔에 이쁜 프랙탈이 그려집니다.
+제 머신에선 20초 정도 걸리네요.
 
-    $ ./example2-c mandel.b
+다 끝나면 BF 프로그램을 돌릴 수 있는 바이너리가 나옵니다.
+이 튜토리얼 저장소엔 제 컴퓨터에서 45초 정도 걸리는 만델브로트 프랙탈 생성기 등
+몇가지 BF 프로그램들이 들어있는데, 그 인터프리터로 한 번 돌려보세요:
 
-Compare this to running the interpreter un-translated on top of python::
+```sh
+$ ./example2-c mandel.b
+```
 
-    $ python example2.py mandel.b
-    
-Takes forever, doesn't it?
+변환을 안 거치고 그대로 파이썬에서 돌릴 경우랑 비교해봅시다:
 
-So there you have it. We've successfully written our own interpreter in RPython
-and translated it with the PyPy toolchain.
+```sh
+$ python example2.py mandel.b
+```
+
+안끝나죠, 그죠?
+
+다 했어요. RPython으로 작성한 인터프리터를
+PyPy 툴체인으로 별 탈 없이 번역하는데 성공했습니다.
 
 Adding JIT
 ==========
