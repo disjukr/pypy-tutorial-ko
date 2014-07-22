@@ -297,7 +297,7 @@ file descriptor마저 너무 저수준이라 문제라면, PyPy의 "Rpython 표�
 [example2.py](./example2.py)
 
 변환
-====
+----
 bitbucket.org 저장소에 있는 PyPy 최신 버전을 준비합니다:
 
 ```sh
@@ -338,22 +338,22 @@ $ python example2.py mandel.b
 다 했어요. RPython으로 작성한 인터프리터를
 PyPy 툴체인으로 별 탈 없이 번역하는데 성공했습니다.
 
-Adding JIT
-==========
-Translating RPython to C is pretty cool, but one of the best features of PyPy
-is its ability to *generate just-in-time compilers for your interpreter*.
-That's right, from just a couple hints on how your interpreter is structured,
-PyPy will generate and include a JIT compiler that will, at runtime, translate
-the interpreted code of our BF language to machine code!
+JIT 끼얹기
+----------
+RPython을 C로 변환한 것 까지는 좋은데 PyPy를 사용하면서
+*just-in-time 컴파일러를 날로먹는 기능*을 안쓰고 넘어가긴 아깝죠.
+네, 인터프리터를 어떻게 구성했는지에 대해서 몇가지 힌트만 던져주면
+PyPy가 알아서 런타임에, 해석된 BF 언어를 기계어로 바꿔주는
+JIT 컴파일러를 만들어서, 여러분의 인터프리터에 끼워줍니다!
 
-So what do we need to tell PyPy to make this happen? First it needs to know
-where the start of your bytecode evaluation loop is. This lets it keep track of
-instructions being executed in the target language (BF).
+그래서 PyPy한테 그 일을 부탁하려면 뭘 알려줘야 할까요?
+일단 PyPy는 타겟 언어에서(BF) 명령어를 실행한 과정을 쟁여놓고 분석하기 때문에
+여러분의 바이트코드 평가 루프가 어디서 시작하는지를 알아야 합니다.
 
-We also need to let it know what defines a particular execution frame. Since
-our language doesn't really have stack frames, this boils down to what's
-constant for the execution of a particular instruction, and what's not. These
-are called "green" and "red" variables, respectively.
+그리고 또 알려줘야 하는게 특정 실행 프레임을 정의하는 것이 무엇인지 인데,
+BF는 딱히 스택 프레임을 갖지 않아서, 특정 명령어를 실행하기 위한 상수가 무엇인지,
+그리고 그게 아닌 상수는 무엇인지 정도로 졸아듭니다.
+이 것들은 각각 "초록"과 "빨강" 변수라고 불립니다.
 
 Refer back to `<example2.py>`_ for the following.
 
