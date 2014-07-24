@@ -355,37 +355,43 @@ BF는 딱히 스택 프레임을 갖지 않아서, 특정 명령어를 실행하
 그리고 그게 아닌 상수는 무엇인지 정도로 졸아듭니다.
 이 것들은 각각 "초록"과 "빨강" 변수라고 불립니다.
 
-Refer back to `<example2.py>`_ for the following.
+잠깐 [example2.py](./example2.py)를 다시 보고 넘어갑시다.
 
-In our main loop, there are four variables used: pc, program, bracket_map, and
-tape. Of those, pc, program, and bracket_map are all green variables. They
-*define* the execution of a particular instruction. If the JIT routines see the
-same combination of green variables as before, it knows it's skipped back and
-must be executing a loop.  The variable "tape" is our red variable, it's what's
-being manipulated by the execution.
+`mainloop`를 보면 `pc`, `program`, `bracket_map`, `tape`
+이렇게 네 가지 변수가 사용되고 있습니다.
+여기서 `pc`, `program`, `bracket_map`은 초록 변수들입니다.
+그 것들은 특정 명령어의 실행을 *정의*하고 있죠.
+만약 JIT 루틴이 같은 조합의 초록 변수들을 먼저 발견한다면 그냥 무시하고 건너 뛸지
+반복 구문을 실행해야 할지를 알 수 있게 됩니다.
+`tape` 변수는 코드 실행에 의해 조작되는 빨강 변수입니다.
 
-So let's tell PyPy this info. Start by importing the JitDriver class and making
-an instance::
+이걸 PyPy한테 알려줍시다.
+`JitDriver` 클래스를 불러오고 인스턴스를 만드는 것부터 시작합니다:
 
-    from rpython.rlib.jit import JitDriver
-    jitdriver = JitDriver(greens=['pc', 'program', 'bracket_map'],
-            reds=['tape'])
-    
-And we add this line to the very top of the while loop in the mainloop
-function::
+```python
+from rpython.rlib.jit import JitDriver
+jitdriver = JitDriver(greens=['pc', 'program', 'bracket_map'],
+        reds=['tape'])
+```
 
-        jitdriver.jit_merge_point(pc=pc, tape=tape, program=program,
-                bracket_map=bracket_map)
-                
-We also need to define a JitPolicy. We're not doing anything fancy, so this is
-all we need somewhere in the file::
+그리고 `mainloop` 함수에서 반복문의 제일 상단에 이 코드를 추가합니다:
 
-    def jitpolicy(driver):
-        from rpython.jit.codewriter.policy import JitPolicy
-        return JitPolicy()
-        
-See this example at `<example3.py>`_
-        
+```python
+jitdriver.jit_merge_point(pc=pc, tape=tape, program=program,
+        bracket_map=bracket_map)
+```
+
+그리고 `JitPolicy`도 정의해줘야 합니다. 딱히 대단한 걸 하려는 게 아니므로
+그냥 파일의 아무 곳에 다음과 같이 써주기만 하면 됩니다:
+
+```python
+def jitpolicy(driver):
+    from rpython.jit.codewriter.policy import JitPolicy
+    return JitPolicy()
+```
+
+예제 링크입니다: [example3.py](./example3.py)
+
 Now try translating again, but with the flag ``--opt=jit``::
 
     $ python ./pypy/rpython/bin/rpython --opt=jit example3.py
