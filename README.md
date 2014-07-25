@@ -392,19 +392,21 @@ def jitpolicy(driver):
 
 예제 링크입니다: [example3.py](./example3.py)
 
-Now try translating again, but with the flag ``--opt=jit``::
+이제 `--opt=jit` 플래그를 붙여서 다시 번역시켜봅시다:
 
-    $ python ./pypy/rpython/bin/rpython --opt=jit example3.py
+```sh
+$ python ./pypy/rpython/bin/rpython --opt=jit example3.py
+```
 
-It will take significantly longer to translate with JIT enabled, almost 8
-minutes on my machine, and the resulting binary will be much larger. When it's
-done, try having it run the mandelbrot program again. A world of difference,
-from 12 seconds compared to 45 seconds before!
+JIT을 활성화시키면 변환이 엄청 오래걸리고 결과로 뽑히는 바이너리도 훨씬 큽니다.
+제 머신에선 다 번역되는데 거의 8분이 걸렸네요.
+다 끝나면 예의 만델브로트 프로그램을 다시 돌려봅시다.
+번역이 엄청 오래걸린 반면, 프로그램 실행은 45초나 걸리던 전과는 달리
+이번엔 12 초만에 처리됩니다!
 
-Interestingly enough, you can see when the JIT compiler switches from
-interpreted to machine code with the mandelbrot example. The first few lines of
-output come out pretty fast, and then the program gets a boost of speed and
-gets even faster.
+잘 보면 흥미롭게도 JIT 컴파일러가,
+만델브로트 예제가 해석된 코드를 기계어로 바뀌어나가는 순간을 발견할 수 있을겁니다.
+처음 몇 줄이 출력되고 난 뒤부터 프로그램이 점점 더 속도를 높여나갑니다.
 
 A bit about Tracing JIT Compilers
 =================================
