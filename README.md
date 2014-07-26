@@ -408,26 +408,29 @@ JIT을 활성화시키면 변환이 엄청 오래걸리고 결과로 뽑히는 �
 만델브로트 예제가 해석된 코드를 기계어로 바뀌어나가는 순간을 발견할 수 있을겁니다.
 처음 몇 줄이 출력되고 난 뒤부터 프로그램이 점점 더 속도를 높여나갑니다.
 
-A bit about Tracing JIT Compilers
-=================================
-It's worth it at this point to read up on how tracing JIT compilers work.
-Here's a brief explanation: The interpreter is usually running your interpreter
-code as written. When it detects a loop of code in the target language (BF) is
-executed often, that loop is considered "hot" and marked to be traced. The next
-time that loop is entered, the interpreter gets put in tracing mode where every
-executed instruction is logged.
+Tracing JIT 컴파일러에 대해서
+-----------------------------
+Tracing JIT 컴파일러가 어떻게 돌아가는지 지금 짚고 넘어가면 좋을 것 같습니다.
+간략하게 설명하자면..
 
-When the loop is finished, tracing stops. The trace of the loop is sent to an
-optimizer, and then to an assembler which outputs machine code. That machine
-code is then used for subsequent loop iterations.
+기본적으로는 여러분이 작성한 코드대로 돌아가는 인터프리터가 하나 있습니다.
+그 인터프리터가 타겟 언어(BF)에서 반복되는 코드를 발견하면 해당 루프를
+"핫"한 지점으로 간주하고 다음부터는 추적되도록(traced) 마킹합니다.
+이후에 해당 루프에 진입하게 되면
+그 인터프리터는 모든 실행 명령어를 로깅하는 추적 모드로 돌아갑니다.
 
-This machine code is often optimized for the most common case, and depends on
-several assumptions about the code. Therefore, the machine code will contain
-guards, to validate those assumptions. If a guard check fails, the runtime
-falls back to regular interpreted mode.
+루프가 끝나면 추적도 멈춥니다. 추적한 내용은 최적화 공정으로 던져지고,
+어셈블러를 거쳐 기계어로 나오게 됩니다.
+그 기계어는 이후에 해당하는 반복 구문을 돌 때 사용됩니다.
 
-A good place to start for more information is
-http://en.wikipedia.org/wiki/Just-in-time_compilation
+이 기계어는 대부분의 경우에 대해서 잘 돌아가도록 최적화 되어있지만,
+해석된 코드에 대해서 몇가지 가정을 둡니다.
+따라서 기계어 코드는 이 가정을 확인하기 위한 가드(guards)를 갖고 있는데요,
+만약에 가드 체크가 실패하게 된다면 런타임은
+본래의 해석 모드로 돌아가게(falls back) 됩니다.
+
+JIT 컴파일러에 대해서는 다음의 링크에서 더 자세히 알아볼 수 있습니다:
+[http://en.wikipedia.org/wiki/Just-in-time_compilation](http://en.wikipedia.org/wiki/Just-in-time_compilation)
 
 Debugging and Trace Logs
 ========================
