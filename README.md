@@ -432,34 +432,36 @@ Tracing JIT 컴파일러가 어떻게 돌아가는지 지금 짚고 넘어가면
 JIT 컴파일러에 대해서는 다음의 링크에서 더 자세히 알아볼 수 있습니다:
 [http://en.wikipedia.org/wiki/Just-in-time_compilation](http://en.wikipedia.org/wiki/Just-in-time_compilation)
 
-Debugging and Trace Logs
-========================
-Can we do any better? How can we see what the JIT is doing? Let's do two
-things.
+디버깅과 로그 추적
+------------------
+여기서 더 할만한 게 있을까요? 심심한데 JIT이 뭘 하고 있는지 구경이나 해볼까요?
 
-First, let's add a get_printable_location function, which is used during debug
-trace logging::
+일단, 디버그 추적 로깅에 사용되는 `get_printable_location` 함수를 작성합시다:
 
-    def get_location(pc, program, bracket_map):
-        return "%s_%s_%s" % (
-                program[:pc], program[pc], program[pc+1:]
-                )
-    jitdriver = JitDriver(greens=['pc', 'program', 'bracket_map'], reds=['tape'],
-            get_printable_location=get_location)
-            
-This function is passed in the green variables, and should return a string.
-Here, we're printing out the BF code, surrounding the currently executing
-instruction with underscores so we can see where it is.
+```python
+def get_location(pc, program, bracket_map):
+    return "%s_%s_%s" % (
+            program[:pc], program[pc], program[pc+1:]
+            )
+jitdriver = JitDriver(greens=['pc', 'program', 'bracket_map'], reds=['tape'],
+        get_printable_location=get_location)
+```
 
-Download this as `<example4.py>`_ and translate it the same as example3.py.
+이 함수는 초록 변수들을 인자로 받아서 문자열을 반환하는 함수입니다.
+이걸로 BF 코드를 밑줄로 구분해서 현재 실행하는 명령어를 볼 수 있게 출력해보죠.
 
-Now let's run a test program (test.b, which just prints the letter "A" 15 or so
-times in a loop) with trace logging::
+이걸 [example4.py](./example4.py)로 다운받아서 example3.py 때랑 똑같이
+번역해봅시다.
 
-    $ PYPYLOG=jit-log-opt:logfile ./example4-c test.b
-    
-Now take a look at the file "logfile". This file is quite hard to read, so
-here's my best shot at explaining it.
+번역이 끝나면 테스트 프로그램(test.b 파일이고, 문자 "A"를 15번 정도
+반복해서 출력하는 단순한 프로그램입니다.)을 추적 로깅하면서 돌려봅시다:
+
+```sh
+$ PYPYLOG=jit-log-opt:logfile ./example4-c test.b
+```
+
+프로그램을 돌리고 나서 "logfile" 파일을 열어봅시다.
+이 파일은 꽤 읽기 어렵게 생겼군요, 이 참에 제가 설명을 좀 해보겠습니다.
 
 The file contains a log of every trace that was performed, and is essentially a
 glimpse at what instructions it's compiling to machine code for you. It's
