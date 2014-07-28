@@ -463,52 +463,57 @@ $ PYPYLOG=jit-log-opt:logfile ./example4-c test.b
 프로그램을 돌리고 나서 "logfile" 파일을 열어봅시다.
 이 파일은 꽤 읽기 어렵게 생겼군요, 이 참에 제가 설명을 좀 해보겠습니다.
 
-The file contains a log of every trace that was performed, and is essentially a
-glimpse at what instructions it's compiling to machine code for you. It's
-useful to see if there are unnecessary instructions or room for optimization.
+이 파일은 수행된 모든 추적에 대한 로그를 담고 있어서,
+여기서 무슨 명령어가 기계어로 번역되고 있는지 흘겨볼 수 있습니다.
+혹시나 최적화 할만한 위치나 불필요한 명령어가 있는지도 찾아볼 수 있죠.
 
-Each trace starts with a line that looks like this::
+각각의 추적 로그는 다음과 같은 모양의 라인으로 시작합니다:
 
-    [3c091099e7a4a7] {jit-log-opt-loop
-    
-and ends with a line like this::
+```
+[3c091099e7a4a7] {jit-log-opt-loop
+```
 
-    [3c091099eae17d jit-log-opt-loop}
-    
-The next line tells you which loop number it is, and how many ops are in it.
-In my case, the first trace looks like this::
+그리고 이런 모양으로 끝납니다:
 
+```
+[3c091099eae17d jit-log-opt-loop}
+```
 
-    1  [3c167c92b9118f] {jit-log-opt-loop
-    2  # Loop 0 : loop with 26 ops
-    3  [p0, p1, i2, i3]
-    4  debug_merge_point('+<[>[_>_+<-]>.[<+>-]<<-]++++++++++.', 0)
-    5  debug_merge_point('+<[>[>_+_<-]>.[<+>-]<<-]++++++++++.', 0)
-    6  i4 = getarrayitem_gc(p1, i2, descr=<SignedArrayDescr>)
-    7  i6 = int_add(i4, 1)
-    8  setarrayitem_gc(p1, i2, i6, descr=<SignedArrayDescr>)
-    9  debug_merge_point('+<[>[>+_<_-]>.[<+>-]<<-]++++++++++.', 0)
-    10 debug_merge_point('+<[>[>+<_-_]>.[<+>-]<<-]++++++++++.', 0)
-    11 i7 = getarrayitem_gc(p1, i3, descr=<SignedArrayDescr>)
-    12 i9 = int_sub(i7, 1)
-    13 setarrayitem_gc(p1, i3, i9, descr=<SignedArrayDescr>)
-    14 debug_merge_point('+<[>[>+<-_]_>.[<+>-]<<-]++++++++++.', 0)
-    15 i10 = int_is_true(i9)
-    16 guard_true(i10, descr=<Guard2>) [p0]
-    17 i14 = call(ConstClass(ll_dict_lookup__dicttablePtr_Signed_Signed), ConstPtr(ptr12), 90, 90, descr=<SignedCallDescr>)
-    18 guard_no_exception(, descr=<Guard3>) [i14, p0]
-    19 i16 = int_and(i14, -9223372036854775808)
-    20 i17 = int_is_true(i16)
-    21 guard_false(i17, descr=<Guard4>) [i14, p0]
-    22 i19 = call(ConstClass(ll_get_value__dicttablePtr_Signed), ConstPtr(ptr12), i14, descr=<SignedCallDescr>)
-    23 guard_no_exception(, descr=<Guard5>) [i19, p0]
-    24 i21 = int_add(i19, 1)
-    25 i23 = int_lt(i21, 114)
-    26 guard_true(i23, descr=<Guard6>) [i21, p0]
-    27 guard_value(i21, 86, descr=<Guard7>) [i21, p0]
-    28 debug_merge_point('+<[>[_>_+<-]>.[<+>-]<<-]++++++++++.', 0)
-    29 jump(p0, p1, i2, i3, descr=<Loop0>)
-    30 [3c167c92bc6a15] jit-log-opt-loop}
+그 다음 줄은 몇 번 루프인지, 몇 개의 op들로 구성됐는지를 알려줍니다.
+제 경우에 첫번째 추적 로그는 다음과 같이 생겼습니다:
+
+```
+1  [3c167c92b9118f] {jit-log-opt-loop
+2  # Loop 0 : loop with 26 ops
+3  [p0, p1, i2, i3]
+4  debug_merge_point('+<[>[_>_+<-]>.[<+>-]<<-]++++++++++.', 0)
+5  debug_merge_point('+<[>[>_+_<-]>.[<+>-]<<-]++++++++++.', 0)
+6  i4 = getarrayitem_gc(p1, i2, descr=<SignedArrayDescr>)
+7  i6 = int_add(i4, 1)
+8  setarrayitem_gc(p1, i2, i6, descr=<SignedArrayDescr>)
+9  debug_merge_point('+<[>[>+_<_-]>.[<+>-]<<-]++++++++++.', 0)
+10 debug_merge_point('+<[>[>+<_-_]>.[<+>-]<<-]++++++++++.', 0)
+11 i7 = getarrayitem_gc(p1, i3, descr=<SignedArrayDescr>)
+12 i9 = int_sub(i7, 1)
+13 setarrayitem_gc(p1, i3, i9, descr=<SignedArrayDescr>)
+14 debug_merge_point('+<[>[>+<-_]_>.[<+>-]<<-]++++++++++.', 0)
+15 i10 = int_is_true(i9)
+16 guard_true(i10, descr=<Guard2>) [p0]
+17 i14 = call(ConstClass(ll_dict_lookup__dicttablePtr_Signed_Signed), ConstPtr(ptr12), 90, 90, descr=<SignedCallDescr>)
+18 guard_no_exception(, descr=<Guard3>) [i14, p0]
+19 i16 = int_and(i14, -9223372036854775808)
+20 i17 = int_is_true(i16)
+21 guard_false(i17, descr=<Guard4>) [i14, p0]
+22 i19 = call(ConstClass(ll_get_value__dicttablePtr_Signed), ConstPtr(ptr12), i14, descr=<SignedCallDescr>)
+23 guard_no_exception(, descr=<Guard5>) [i19, p0]
+24 i21 = int_add(i19, 1)
+25 i23 = int_lt(i21, 114)
+26 guard_true(i23, descr=<Guard6>) [i21, p0]
+27 guard_value(i21, 86, descr=<Guard7>) [i21, p0]
+28 debug_merge_point('+<[>[_>_+<-]>.[<+>-]<<-]++++++++++.', 0)
+29 jump(p0, p1, i2, i3, descr=<Loop0>)
+30 [3c167c92bc6a15] jit-log-opt-loop}
+```
 
 I've trimmed the debug_merge_point lines a bit, they were really long.
 
