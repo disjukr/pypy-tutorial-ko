@@ -515,21 +515,21 @@ $ PYPYLOG=jit-log-opt:logfile ./example4-c test.b
 30 [3c167c92bc6a15] jit-log-opt-loop}
 ```
 
-I've trimmed the debug_merge_point lines a bit, they were really long.
+`debug_merge_point` 라인들은 너무 길어서 좀 잘라냈으니 양해해주세요.
 
-So let's see what this does. This trace takes 4 parameters: 2 object pointers
-(p0 and p1) and 2 integers (i2 and i3). Looking at the debug lines, it seems to
-be tracing one iteration of this loop: "[>+<-]"
+자 이게 무엇을 하는지 좀 봅시다. 네 개의 인자—두 개의 객체 포인터(`p0`, `p1`)와
+두 개의 정수(`i2`, `i3`)를 받아서 추적하네요.
+디버그 라인들을 보면 `[>+<-]` 반복의 한 주기를 추적하는 것 같습니다.
 
-It starts executing the first operation on line 4, a ">", but immediately
-starts executing the next operation. The ">" had no instructions, and looks
-like it was optimized out completely.  This loop must always act on the same
-part of the tape, the tape pointer is constant for this trace. An explicit
-advance operation is unnecessary.
+4번째 줄의 `>` 부터 추적이 되는데 아무 것도 안하고 즉시 다음 명령으로 넘어갑니다.
+`>`는 아무런 명령어도 들어가지 않고 완벽하게 최적화되어 빠져나간 것 같습니다.
+이 루프는 언제나 테이프의 같은 부분에서만 돌아가야 하기 때문에
+이 추적에서 테이프 포인터는 상수가 됩니다.
+이 처리를 위한 명령을 명시적으로 넣어줄 필요가 없죠.
 
-Lines 5 to 8 are the instructions for the "+" operation. First it gets the
-array item from the array in pointer p1 at index i2 (line 6), adds 1 to it and
-stores it in i6 (line 7), and stores it back in the array (line 8).
+5 ~ 8번 줄에서는 `+` 명령을 위한 처리를 합니다.
+먼저 포인터 `p1`이 가르키는 배열의 항목을 `i2`로 가져와서 (6번 줄), `1`을 더해서
+`i6`에 저장하고 (7번 줄), 그걸 다시 배열에다 저장합니다 (8번 줄).
 
 Line 9 starts the "<" instruction, but it is another no-op. It seems that i2
 and i3 passed into this routine are the two tape pointers used in this loop
