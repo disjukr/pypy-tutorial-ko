@@ -531,13 +531,12 @@ $ PYPYLOG=jit-log-opt:logfile ./example4-c test.b
 먼저 포인터 `p1`이 가르키는 배열의 항목을 `i2`로 가져와서 (6번 줄), `1`을 더해서
 `i6`에 저장하고 (7번 줄), 그걸 다시 배열에다 저장합니다 (8번 줄).
 
-Line 9 starts the "<" instruction, but it is another no-op. It seems that i2
-and i3 passed into this routine are the two tape pointers used in this loop
-already calculated. Also deduced is that p1 is the tape array. It's not clear
-what p0 is.
+9번 줄은 `<` 명령으로 시작하지만 이 것 역시 아무런 명령어도 들어가지 않습니다.
+보아하니 `i2`와 `i3`에 이 루틴의 두 테이프 포인터가 미리 계산되어 전달되는 것 같죠.
+아직 `p0`이 어떤 녀석인지는 잘 모르겠지만 `p1`은 테이프 배열인 것 같습니다.
 
-Lines 10 through 13 perform the "-" operation: get the array value (line 11),
-subtract (line 12) and set the array value (line 13).
+10번부터 13번 줄은 `-` 명령을 수행합니다: 배열 값을 읽어와서 (11번 줄),
+`1`을 빼고 (12번 줄) 배열에 값을 설정합니다 (13번 줄).
 
 Next, on line 14, we come to the "]" operation. Lines 15 and 16 check whether
 i9 is true (non-zero). Looking up, i9 is the array value that we just
