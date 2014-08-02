@@ -538,12 +538,12 @@ $ PYPYLOG=jit-log-opt:logfile ./example4-c test.b
 10번부터 13번 줄은 `-` 명령을 수행합니다: 배열 값을 읽어와서 (11번 줄),
 `1`을 빼고 (12번 줄) 배열에 값을 설정합니다 (13번 줄).
 
-Next, on line 14, we come to the "]" operation. Lines 15 and 16 check whether
-i9 is true (non-zero). Looking up, i9 is the array value that we just
-decremented and stored, now being checked as the loop condition, as expected
-(remember the definition of "]").  Line 16 is a guard, if the condition is not
-met, execution jumps somewhere else, in this case to the routine called
-<Guard2> and is passed one parameter: p0.
+14번 줄을 보니 어느새 `]` 명령으로 도착했습니다.
+15, 16번 줄에서는 `i9`가 참(`0`이 아닌 값)인지를 확인합니다.
+`i9`는 아까 감소시키고 저장하던 배열의 값인 것 같은데,
+예상대로 반복 조건 평가에 사용되고 있네요.
+16번 줄은 가드입니다. 만약 조건이 충족되지 않으면 어딘가 다른 곳으로 점프하는데,
+이 경우에는 `<Guard2>`라고 불리는 루틴으로 `p0` 인자를 담아서 보내줍니다.
 
 Assuming we pass the guard, lines 17 through 23 are doing the dictionary lookup
 to bracket_map to find where the program counter should jump to.  I'm not too
