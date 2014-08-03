@@ -575,51 +575,57 @@ JIT은 반복을 다시 시작하는 경우를 (29번 줄) 다루기 위해
 PyPy는 그 딕셔너리가 수정되지 않을거라던지
 매 질의마다 다른 값을 반환하지는 않는다던지 하는 사실을 알지 못합니다.
 
-What we need to do is provide another hint to the translation to say that the
-dictionary query is a pure function, that is, its output depends *only* on its
-inputs and the same inputs should always return the same output.
+PyPy 번역기한테 이 사실을 알려주려면
+딕셔너리 질의가 순수함수라는 힌트를 던져주면 됩니다.
+순수함수라는 것은 반환되는 값이 *오직* 입력값에 의해서만 결정되며,
+같은 입력을 던져주면 언제나 같은 값을 반환한다는 것을 의미합니다.
 
-To do this, we use a provided function decorator rpython.rlib.jit.purefunction,
-and wrap the dictionary call in a decorated function::
+그렇게 하려면 제공되는 데코레이터 함수 `rpython.rlib.jit.purefunction`을 사용해서,
+딕셔너리 호출을 한 번 감싸주면 됩니다:
 
-    @purefunction
-    def get_matching_bracket(bracket_map, pc):
-        return bracket_map[pc]
-        
-This version can be found at `<example5.py>`_
+```python
+@purefunction
+def get_matching_bracket(bracket_map, pc):
+    return bracket_map[pc]
+```
 
-Translate again with the JIT option and observe the speedup. Mandelbrot now
-only takes 6 seconds!  (from 12 seconds before this optimization)
+예제 링크입니다: [example5.py](./example5.py)
 
-Let's take a look at the trace from the same function::
+다시 JIT 설정으로 변환해서 속도를 측정해봅시다.
+이제 만델브로트 예제가 6초밖에 걸리지 않아요! (이 최적화를 거치기 전엔 12초가 걸렸죠)
 
-    [3c29fad7b792b0] {jit-log-opt-loop
-    # Loop 0 : loop with 15 ops
-    [p0, p1, i2, i3]
-    debug_merge_point('+<[>[_>_+<-]>.[<+>-]<<-]++++++++++.', 0)
-    debug_merge_point('+<[>[>_+_<-]>.[<+>-]<<-]++++++++++.', 0)
-    i4 = getarrayitem_gc(p1, i2, descr=<SignedArrayDescr>)
-    i6 = int_add(i4, 1)
-    setarrayitem_gc(p1, i2, i6, descr=<SignedArrayDescr>)
-    debug_merge_point('+<[>[>+_<_-]>.[<+>-]<<-]++++++++++.', 0)
-    debug_merge_point('+<[>[>+<_-_]>.[<+>-]<<-]++++++++++.', 0)
-    i7 = getarrayitem_gc(p1, i3, descr=<SignedArrayDescr>)
-    i9 = int_sub(i7, 1)
-    setarrayitem_gc(p1, i3, i9, descr=<SignedArrayDescr>)
-    debug_merge_point('+<[>[>+<-_]_>.[<+>-]<<-]++++++++++.', 0)
-    i10 = int_is_true(i9)
-    guard_true(i10, descr=<Guard2>) [p0]
-    debug_merge_point('+<[>[_>_+<-]>.[<+>-]<<-]++++++++++.', 0)
-    jump(p0, p1, i2, i3, descr=<Loop0>)
-    [3c29fad7ba32ec] jit-log-opt-loop}
-    
-Much better! Each loop iteration is an add, a subtract, two array loads, two
-array stores, and a guard on the exit condition. That's it! This code doesn't
-require *any* program counter manipulation.
+같은 함수의 추적 로그를 다시 한 번 봅시다:
 
-I'm no expert on optimizations, this tip was suggested by Armin Rigo on the
-pypy-dev list. Carl Friedrich has a series of posts on how to optimize your
-interpreter that are also very useful: http://bit.ly/bundles/cfbolz/1
+```
+[3c29fad7b792b0] {jit-log-opt-loop
+# Loop 0 : loop with 15 ops
+[p0, p1, i2, i3]
+debug_merge_point('+<[>[_>_+<-]>.[<+>-]<<-]++++++++++.', 0)
+debug_merge_point('+<[>[>_+_<-]>.[<+>-]<<-]++++++++++.', 0)
+i4 = getarrayitem_gc(p1, i2, descr=<SignedArrayDescr>)
+i6 = int_add(i4, 1)
+setarrayitem_gc(p1, i2, i6, descr=<SignedArrayDescr>)
+debug_merge_point('+<[>[>+_<_-]>.[<+>-]<<-]++++++++++.', 0)
+debug_merge_point('+<[>[>+<_-_]>.[<+>-]<<-]++++++++++.', 0)
+i7 = getarrayitem_gc(p1, i3, descr=<SignedArrayDescr>)
+i9 = int_sub(i7, 1)
+setarrayitem_gc(p1, i3, i9, descr=<SignedArrayDescr>)
+debug_merge_point('+<[>[>+<-_]_>.[<+>-]<<-]++++++++++.', 0)
+i10 = int_is_true(i9)
+guard_true(i10, descr=<Guard2>) [p0]
+debug_merge_point('+<[>[_>_+<-]>.[<+>-]<<-]++++++++++.', 0)
+jump(p0, p1, i2, i3, descr=<Loop0>)
+[3c29fad7ba32ec] jit-log-opt-loop}
+```
+
+훨씬 나아졌어요! 각 반복 주기가 더하기, 빼기, 두 번의 배열 읽기, 두 번의 배열 쓰기,
+그리고 탈출 조건에 가드 한번만 처리됩니다. 그거면 됐죠!
+이 코드는 *아무런* 프로그램 카운터 조작을 필요로 하지 않습니다.
+
+제가 딱히 최적화 전문가인 것은 아니고,
+이 팁도 pypy-dev 메일링 리스트의 Armin Rigo에게서 제안된 것입니다.
+Carl Friedrich가 인터프리터 최적화에 대해서 작성한 일련의 포스트 또한 유용합니다:
+[http://bit.ly/bundles/cfbolz/1](http://bit.ly/bundles/cfbolz/1)
 
 Final Words
 ===========
