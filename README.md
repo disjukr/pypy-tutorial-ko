@@ -565,16 +565,15 @@ JIT은 반복을 다시 시작하는 경우를 (29번 줄) 다루기 위해
 반복 몸체 `<Loop0>`로 점프할 수 있는데,
 그 때 인자들을 (`p0`, `p1`, `i2`, `i3`) 던져줍니다.
 
-Optimizing
-==========
-As mentioned, every loop iteration does a dictionary lookup to find the
-corresponding matching bracket for the final jump. This is terribly
-inefficient, the jump target is not going to change from one loop to the next.
-This information is constant and should be compiled in as such.
+최적화
+------
+모든 반복 주기는 딕셔너리 룩업으로 상응하는 괄호를 찾아서 점프한다고 얘기했었죠.
+이거 상당히 비효율적입니다. 점프해서 도달할 위치는 바뀌지 않아요.
+이 정보는 상수라거나 아니면 그런 무언가로 컴파일되어야 합니다.
 
-The problem is that the lookups are coming from a dictionary, and PyPy is
-treating it as opaque. It doesn't know the dictionary isn't being modified or
-isn't going to return something different on each query.
+문제는 그 룩업을 딕셔너리에서 한다는 것이고 PyPy는 그걸 불투명하게 다룬다는 것인데요.
+PyPy는 그 딕셔너리가 수정되지 않을거라던지
+매 질의마다 다른 값을 반환하지는 않는다던지 하는 사실을 알지 못합니다.
 
 What we need to do is provide another hint to the translation to say that the
 dictionary query is a pure function, that is, its output depends *only* on its
