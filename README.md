@@ -627,13 +627,13 @@ jump(p0, p1, i2, i3, descr=<Loop0>)
 Carl Friedrich가 인터프리터 최적화에 대해서 작성한 일련의 포스트 또한 유용합니다:
 [http://bit.ly/bundles/cfbolz/1](http://bit.ly/bundles/cfbolz/1)
 
-Final Words
-===========
-I hope this has shown some of you what PyPy is all about other than a faster
-implementation of Python.
+여담
+----
+이 튜토리얼이 독자에게
+빠른 파이썬 구현체로써가 아닌 PyPy에 대해 가능한 많이 보여줄 수 있었으면 합니다.
 
-For those that would like to know more about how the process works, there are
-several academic papers explaining the process in detail that I recommend. In
-particular: Tracing the Meta-Level: PyPy's Tracing JIT Compiler.
+PyPy가 어떻게 돌아가는지 더 알아보고 싶으신 분들을 위해,
+더욱 깊은 내용을 다뤄주는 학술 논문들이 있습니다:
+[http://readthedocs.org/docs/pypy/en/latest/extradoc.html]([http://readthedocs.org/docs/pypy/en/latest/extradoc.html])
 
-See http://readthedocs.org/docs/pypy/en/latest/extradoc.html
+전 특히 'Tracing the Meta-Level: PyPy's Tracing JIT Compiler'를 추천드립니다.
