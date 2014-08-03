@@ -552,16 +552,18 @@ $ PYPYLOG=jit-log-opt:logfile ./example4-c test.b
 우리는 `bracket_map`이 절대로 바뀌지 않는다는 것을 알고 있으니 (PyPy는 이걸 모르죠)
 이 부분이 꽤나 비싸뵙니다. 다음 절에서 이걸 최적화하는 법을 다룰 겁니다.
 
-Line 24 increments the newly acquired instruction pointer. Lines 25 and 26 make
-sure it's less than the program's length.
+24번 줄은 새로 가져온 명령어 포인터의 값을 증가시키고,
+25번과 26번 줄에서는 가져온 포인터 값이 프로그램 길이보다 작은지 확인합니다.
 
-Additionally, line 27 guards that i21, the incremented instruction pointer, is
-exactly 86. This is because it's about to jump to the beginning (line 29) and
-the instruction pointer being 86 is a precondition to this block.
+덧붙여 `i21`으로 가드하는 27번 줄은,
+증가된 명령어 포인터의 값이 정확히 `86`인지를 검사합니다.
+왜 그러냐면 이게 시작지점으로 점프했을 때 (29번 줄)
+명령어 포인터 값이 `86`인 것이 이 블록의 전제조건이기 때문이죠.
 
-Finally, the loop closes up at line 28 so the JIT can jump to loop body <Loop0>
-to handle that case (line 29), which is the beginning of the loop again. It
-passes in parameters (p0, p1, i2, i3).
+마지막으로 28번 줄, 반복 주기가 종료되는 곳에서
+JIT은 반복을 다시 시작하는 경우를 (29번 줄) 다루기 위해
+반복 몸체 `<Loop0>`로 점프할 수 있는데,
+그 때 인자들을 (`p0`, `p1`, `i2`, `i3`) 던져줍니다.
 
 Optimizing
 ==========
