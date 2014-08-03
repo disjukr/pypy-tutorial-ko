@@ -545,12 +545,12 @@ $ PYPYLOG=jit-log-opt:logfile ./example4-c test.b
 16번 줄은 가드입니다. 만약 조건이 충족되지 않으면 어딘가 다른 곳으로 점프하는데,
 이 경우에는 `<Guard2>`라고 불리는 루틴으로 `p0` 인자를 담아서 보내줍니다.
 
-Assuming we pass the guard, lines 17 through 23 are doing the dictionary lookup
-to bracket_map to find where the program counter should jump to.  I'm not too
-familiar with what the instructions are actually doing, but it looks like there
-are two external calls and 3 guards. This seems quite expensive, especially
-since we know bracket_map will never change (PyPy doesn't know that).  We'll
-see below how to optimize this.
+일단 가드를 통과했다고 가정하고 17번부터 23번 라인을 보면, `bracket_map`을 뒤져서
+프로그램 카운터를 어디로 점프시킬지를 찾습니다.
+전 사실 어떤 명령어가 실제로 무엇을 하는지 잘 모릅니다만,
+딱 보아하니 뭔가 외부 호출을 두어번 하고 가드가 세 개 있는거 같습니다.
+우리는 `bracket_map`이 절대로 바뀌지 않는다는 것을 알고 있으니 (PyPy는 이걸 모르죠)
+이 부분이 꽤나 비싸뵙니다. 다음 절에서 이걸 최적화하는 법을 다룰 겁니다.
 
 Line 24 increments the newly acquired instruction pointer. Lines 25 and 26 make
 sure it's less than the program's length.
